@@ -14,14 +14,14 @@ window.addEventListener('load', function(){
                 } else if (e.key === ' '){
                     this.game.player.shootTop();
                 }
-                console.log(this.game.keys)
+                
 
             })
             window.addEventListener('keyup', e => {
                 if (this.game.keys.indexOf(e.key) > -1){
                     this.game.keys.splice(this.game.keys.indexOf(e.key), 1)
                 }
-                console.log(this.game.keys)
+                
 
             })
         }
@@ -35,6 +35,7 @@ window.addEventListener('load', function(){
             this.width = 10;
             this.height = 3;
             this.speed = 3;
+            this.markedForDeletion = false;
         }
         update(){
             this.x += this.speed;
@@ -79,8 +80,11 @@ window.addEventListener('load', function(){
             })
         }
         shootTop(){
-            this.projectiles.push(new Projectile(this.game, this.x, this.y));
-            console.log(this.projectiles)
+            if (this.game.ammo > 0 ){
+                this.projectiles.push(new Projectile(this.game, this.x + 40, this.y + 30));
+                this.game.ammo--;
+            }
+            
         }
 
     }
@@ -103,6 +107,7 @@ window.addEventListener('load', function(){
             this.player = new Player(this);
             this.input = new InputHandler(this)
             this.keys = [];
+            this.ammo = 20;
         }
         update(){
             this.player.update();
