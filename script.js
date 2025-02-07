@@ -89,8 +89,33 @@ window.addEventListener('load', function(){
 
     }
     class Enemy {
+        constructor(game){
+            this.game = game;
+            this.x = this.game.width;
+            this.speedX = Math.random() * -1.5 - 0,5;
+            this.markedForDeletion = false;
+        }
 
+        update(){
+            this.x += this.speedX;
+            if (this.x + this.width < 0) this.markedForDeletion = true;
+        }
+
+        draw(context){
+            context.fillStyle = 'red';
+            context.fillRect(this.x, this.y, this.width, this.height);
+        }
     }
+
+    class Angler1 extends Enemy{
+        constructor(game){
+            super(game);
+            this.width = 228 * 0.2;
+            this.height = 169 * 0.2;
+            this.y = Math.random() *(this.game.height *0.9 - this.height);
+        }
+    }
+
     class Layer {
 
     }
@@ -102,7 +127,7 @@ window.addEventListener('load', function(){
             this.game  = game;
             this.fontSize = 25;
             this.fontFamily = 'Helvetica';
-            this.color = 'white';
+            this.color = 'yellow';
         }
         draw(context){
             //ammo
@@ -121,27 +146,50 @@ window.addEventListener('load', function(){
             this.input = new InputHandler(this);
             this.ui = new UI(this);
             this.keys = [];
+            this.enemies = [];
+            this.enemyTimer = 0;
+            this.enemyInterval = 1000;
             this.ammo = 20;
             this.maxAmmo = 50;
             this.ammoTimer = 0;
             this.ammoInterval = 500;
-
+            this.gameOver = false;
         }
         update(deltaTime){
             this.player.update();
     
-    // Ammo regeneration
-        this.ammoTimer += deltaTime;
-        if (this.ammoTimer >= this.ammoInterval) {
-            if (this.ammo < this.maxAmmo) {
-                this.ammo++;
+        // Ammo regeneration
+            this.ammoTimer += deltaTime;
+            if (this.ammoTimer >= this.ammoInterval) {
+                if (this.ammo < this.maxAmmo) {
+                    this.ammo++;
+                }
+            this.ammoTimer = 0; // Reset timer after adding ammo
             }
-        this.ammoTimer = 0; // Reset timer after adding ammo
-        }
+        //Enemies
+            this.enemies.forEach(enemy => {
+                enemy.update();
+            })
+            this.enemies = this.enemies.filter(enemy => !enemy.markedForDeletion);
+
+            if (this.enemyTimer > this.enemyInterval && !this.gameOver){
+                this.addEnemy()
+                this.enemyTimer = 0;
+            }else{
+                this.enemyTimer += deltaTime
+            }
         }
         draw(context){
             this.player.draw(context)
             this.ui.draw(context);
+
+            this.enemies.forEach(enemy => {
+                enemy.draw(context);
+
+            })
+        }
+        addEnemy(){
+            this.enemies.push(new Angler1(this));
         }
     }
 
